@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 import uuid
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
 
 class survey:
     """Class for handling intents surveys from google sheets"""
@@ -333,4 +335,17 @@ def clean_code(x, levels):
         print(repr(e))
     return(x)
 
+# Below copied from Tom Ewings LDA notebook
+
+stops = set(stopwords.words("english"))     # Creating a set of Stopwords
+p_stemmer = PorterStemmer() 
+
+def cleaner(text):
     
+    # Function to clean the text data and prep for further analysis
+    text = text.lower()                          # Converts to lower case
+    text = re.sub("[^a-zA-Z]"," ",text)          # Removes punctuation
+    text = text.split()                          # Splits the data into individual words 
+    text = [w for w in text if not w in stops]   # Removes stopwords
+    text = [p_stemmer.stem(i) for i in text]     # Stemming (reducing words to their root)
+    return(text)
