@@ -340,12 +340,23 @@ def clean_code(x, levels):
 stops = set(stopwords.words("english"))     # Creating a set of Stopwords
 p_stemmer = PorterStemmer() 
 
-def cleaner(text):
+def concat_ngrams(x):
+    #if len(x) > 1 & isinstance(x, list):
+    if isinstance(x, tuple):
+        x = '_'.join(x)
+    return(x)
+
+def cleaner(row):
     
     # Function to clean the text data and prep for further analysis
-    text = text.lower()                          # Converts to lower case
+    text = row.lower()                      # Converts to lower case
     text = re.sub("[^a-zA-Z]"," ",text)          # Removes punctuation
     text = text.split()                          # Splits the data into individual words 
     text = [w for w in text if not w in stops]   # Removes stopwords
     text = [p_stemmer.stem(i) for i in text]     # Stemming (reducing words to their root)
-    return(text)
+    text3 = list(ngrams(text, 2))
+    text2 = list(ngrams(text, 3))
+    text = text + text2 + text3
+    text = list([concat_ngrams(i) for i in text])
+    
+    return(text)  
