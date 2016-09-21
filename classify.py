@@ -4,13 +4,14 @@ from sklearn.preprocessing import LabelEncoder
 import uuid
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
+import requests
 
 class survey:
     """Class for handling intents surveys from google sheets"""
 
     def __init__(self):
         pass
-
+  
     def load(self, x):
         try:
             
@@ -18,8 +19,14 @@ class survey:
             self.raw['uuid'] = [uuid.uuid4() for x in self.raw.index]
 
             # Strip whitespace from columns to save problems later!
+            # Remove no break whitespace first.
             
+            self.raw.columns = [i.replace("\xa0", " ") for i in self.raw.columns]
             self.raw.columns = self.raw.columns.str.strip()
+            
+            # If raw csv from survey monkey: strip the second row of headers:
+            
+            self.raw = drop_sub(self.raw)
             
         except Exception as e:
             return('Error loading raw data from file ' + x)
@@ -29,7 +36,90 @@ class survey:
         # Define mappings and columns used in iterators
 
         # Clean date columns
-    
+        
+    def clean_raw(self):
+
+        self.data = self.raw.copy()
+
+        # Use mapping to rename and subset columns
+
+        self.data.rename(columns = self.raw_mapping, inplace=True)
+
+	# Subset columns mentioned in mapping dict
+
+        cols = list(self.raw_mapping.values())
+        self.data = self.data[cols]
+
+        # Arrange date features
+
+        self.data['start_date'] = clean_startdate(self.data['start_date'])
+        
+        self.data = pd.concat([
+             pd.DataFrame(columns=['org','section']),date_features(self.data['start_date']), self.data],
+            axis = 1
+        )
+        
+        # Features on column names
+        
+        try:
+            for col in self.data.columns:
+                
+                # Is the column entirely NaN?
+                # Currently this is only implemented for comment columns
+                # May make sense to do this for all column types...
+                
+                all_null = (self.data[col].isnull().sum() == len(self.data[col]))
+                
+                if col in self.categories:
+                    self.data[col] = clean_category(self.data[col])
+                elif 'comment' in col and not all_null:
+                    self.data[col + '_capsratio'] = [string_capsratio(x) for x in self.data[col]]
+                    self.data[col + '_nexcl'] = [string_nexcl(x) for x in self.data[col]]
+                    self.data[col + '_len'] = string_len(self.data[col])
+                    self.data[col] = clean_comment(self.data[col])
+                elif col in self.codes:
+                    self.data[col] = clean_code(self.data[col], self.code_levels)
+                    
+        except Exception as e:
+            print('Error cleaning ' + col + ' column')
+            print(
+            'Note that an error here probably signifies that the subset ',
+            'method will not work. Remove problem columns from selection ',
+            'before continuing to subset.'
+                 )
+            print(repr(e))
+            
+    def api_lookup(self):
+
+        print('*********************************************')
+        print('*** Looking up urls on gov.uk content API ***')
+        print('*********************************************')
+        
+        column_names = ['organisation0',
+                         'organisation1',
+                         'organisation2',
+                         'organisation3',
+                         'organisation4',
+                         'section0',
+                         'section1',
+                         'section2',
+                         'section3']
+        
+        if 'full_url' in list(self.data.columns):
+            
+            self.org_sect = [get_org(i) for i in self.data['full_url']]
+        
+            self.org_sect = pd.DataFrame(self.org_sect, columns = column_names)
+            self.org_sect = self.org_sect[['organisation0','section0']]
+            self.org_sect.columns = ['org','section']
+            
+            self.org_sect = self.org_sect.set_index(self.data.index)
+            self.data = pd.concat([self.data.drop(['org','section'], axis = 1), self.org_sect], axis = 1)
+        
+        else:
+            print('full_url column not contained in survey.data object.')
+            print('Are you working on a raw data frame? You should be!')
+            
     def clean(self):
 
         self.data = self.raw.copy()
@@ -45,19 +135,26 @@ class survey:
 
         # Arrange date features
 
-        self.data['StartDate'] = clean_startdate(self.data['StartDate'])
+        self.data['start_date'] = clean_startdate(self.data['start_date'])
         
         self.data = pd.concat(
-            [date_features(self.data['StartDate']), self.data],
+            [date_features(self.data['start_date']), self.data],
             axis = 1
         )
 
         # Features on column names
         try:
             for col in self.data.columns:
+                
+                # Is the column entirely NaN?
+                # Currently this is only implemented for comment columns
+                # May make sense to do this for all column types...
+                
+                all_null = (self.data[col].isnull().sum() == len(self.data[col]))
+                
                 if col in self.categories:
                     self.data[col] = clean_category(self.data[col])
-                elif 'comment' in col:
+                elif 'comment' in col and not all_null:
                     self.data[col + '_capsratio'] = [string_capsratio(x) for x in self.data[col]]
                     self.data[col + '_nexcl'] = [string_nexcl(x) for x in self.data[col]]
                     self.data[col + '_len'] = string_len(self.data[col])
@@ -140,11 +237,30 @@ class survey:
             print('There was an error while subsetting survey data')
             print('Original error message:')
             print(repr(e))
+            
+    raw_mapping = {
+        'uuid': 'uuid',
+        'RespondentID':'respondent_ID',
+        'StartDate':'start_date',
+        'EndDate': 'end_date',
+        'Custom Data':'full_url',
+        'Are you using GOV.UK for professional or personal reasons?':'cat_work_or_personal',
+        'What kind of work do you do?':'comment_what_work',
+        'Describe why you came to GOV.UK today.<br><span style="font-size: 10pt;">Please do not include personal or financial information, eg your National Insurance number or credit card details.</span>':'comment_why_you_came',
+        'Have you found what you were looking for?':'cat_found_looking_for',
+        'Overall, how did you feel about your visit to GOV.UK today?':'cat_satisfaction',
+        'Have you been anywhere else for help with this already?':'cat_anywhere_else_help',
+        'Where did you go for help?':'comment_where_for_help',
+        'If you wish to comment further, please do so here.<br><strong><span style="font-size: 10pt;">Please do not include personal or financial information, eg your National Insurance number or credit card details.</span></strong>':'comment_further_comments',
+        'Unnamed: 13':'comment_other_found_what',       
+        'Unnamed: 17':'comment_other_else_help',
+        'Unnamed: 15':'comment_other_where_for_help'
+    }
 
     mapping = {
         'uuid': 'uuid',
-        'Respondent ID':'Respondent_ID',
-        'Start Date':'StartDate',
+        'Respondent ID':'respondent_ID',
+        'Start Date':'start_date',
         'Page':'page',
         'Org':'org',
         'Section':'section',
@@ -164,7 +280,7 @@ class survey:
     }
     
     categories = [
-        # May be necessary to include date columns at soem juncture  
+        # May be necessary to include date columns at some juncture  
         #'weekday', 'day', 'week', 'month', 'year', 
         'org', 'section', 'cat_work_or_personal', 
         'cat_satisfaction', 'cat_found_looking_for', 
@@ -172,6 +288,12 @@ class survey:
     ]
 
     comments = [
+        'comment_what_work', 'comment_why_you_came', 'comment_other_found_what',
+        'comment_other_else_help', 'comment_where_for_help',
+        'comment_why_you_came_satisfaction', 'comment_further_comments'
+    ]
+    
+    raw_comments = [
         'comment_what_work', 'comment_why_you_came', 'comment_other_found_what',
         'comment_other_else_help', 'comment_other_where_for_help', 'comment_where_for_help',
         'comment_why_you_came_satisfaction', 'comment_further_comments'
@@ -194,6 +316,10 @@ class survey:
 
     selection = ['uuid', 'weekday', 'day', 'week', 'month', 'year'] + categories + [(x + '_len') for x in comments] + [(x + '_nexcl') for x in comments] + [(x + '_capsratio') for x in comments]
 
+def drop_sub(x):
+    if x.iloc[0,].str.match('Open-Ended Response').sum():
+        x.drop(0, inplace=True)
+    return(x)
 
 def string_len(x):
     try:
@@ -354,9 +480,56 @@ def cleaner(row):
     text = text.split()                          # Splits the data into individual words 
     text = [w for w in text if not w in stops]   # Removes stopwords
     text = [p_stemmer.stem(i) for i in text]     # Stemming (reducing words to their root)
-    text3 = list(ngrams(text, 2))
-    text2 = list(ngrams(text, 3))
-    text = text + text2 + text3
-    text = list([concat_ngrams(i) for i in text])
+    return(text)
+
+def lookup(r,page,index):        
+    try:
+        if page == 'mainstream_browse_pages':
+            x = r['results'][0][page][index]            
+        elif page == 'organisations':
+            x = r['results'][0][page][index]['title']
+        else:
+            print('page argument must be one of "organisations" or "mainstream_browse_pages"')
+            sys.exit(1)
+    except (IndexError, KeyError) as e:
+        x = 'null'
+    return(x)
+
+def get_org(x):
     
-    return(text)  
+    # argument x should be pd.Series of full length urls
+    # Loop through each entry in the series
+
+    url = "https://www.gov.uk/api/search.json?filter_link[]=%s&fields=organisations&fields=mainstream_browse_pages" % x
+    
+    print(url)
+    
+    #url = "https://www.gov.uk/api/search.json?filter_link[]=%s&fields=y" % (x, y)
+
+    # read JSON result into r
+    r = requests.get(url).json()
+
+    # chose the fields you want to scrape. This scrapes the first 5 instances of organisation, error checking as it goes
+    # this exception syntax might not work in Python 3
+
+    organisation0 = lookup(r,'organisations', 0)
+    organisation1 = lookup(r,'organisations', 1)
+    organisation2 = lookup(r,'organisations', 2)
+    organisation3 = lookup(r,'organisations', 3)
+    organisation4 = lookup(r,'organisations', 4)
+    section0 = lookup(r,'mainstream_browse_pages', 0)
+    section1 = lookup(r,'mainstream_browse_pages', 1)
+    section2 = lookup(r,'mainstream_browse_pages', 2)
+    section3 = lookup(r,'mainstream_browse_pages', 3)
+
+    row = [organisation0,
+            organisation1,
+            organisation2,
+            organisation3,
+            organisation4,
+            section0,
+            section1,
+            section2,
+            section3]
+        
+    return(row)
