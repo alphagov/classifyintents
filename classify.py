@@ -52,15 +52,24 @@ class survey:
 
         # Arrange date features
 
-        self.data['start_date'] = clean_startdate(self.data['start_date'])
+        self.data['start_date'] = clean_date(self.data['start_date'])
+        self.data['end_date'] = clean_date(self.data['end_date'])
         
+        self.data['time_delta'] = time_delta(self.data['end_date'], self.data['start_date'])
+
         self.data = pd.concat([
              pd.DataFrame(columns=['org','section']),date_features(self.data['start_date']), self.data],
             axis = 1
         )
         
+        # Classify all empty relevant comments as 'none'. This has been moved out of the class!
+
+        #no_comments = (self.data['comment_further_comments'] == 'none') & (self.data['comment_where_for_help'] == 'none') & (self.data['comment_other_where_for_help'] == 'none') & (self.data['comment_why_you_came'] == 'none')
+
+        #self.data.loc[no_comments,'code1'] = 'none'
+
         # Features on column names
-        
+
         try:
             for col in self.data.columns:
                 
@@ -110,11 +119,14 @@ class survey:
             self.org_sect = [get_org(i) for i in self.data['full_url']]
         
             self.org_sect = pd.DataFrame(self.org_sect, columns = column_names)
-            self.org_sect = self.org_sect[['organisation0','section0']]
-            self.org_sect.columns = ['org','section']
-            
             self.org_sect = self.org_sect.set_index(self.data.index)
-            self.data = pd.concat([self.data.drop(['org','section'], axis = 1), self.org_sect], axis = 1)
+
+            # Retain the full lookup, but only add a subset of it to the clean dataframe
+
+            org_sect = self.org_sect[['organisation0','section0']]
+            org_sect.columns = ['org','section']
+            
+            self.data = pd.concat([self.data.drop(['org','section'], axis = 1), org_sect], axis = 1)
         
         else:
             print('full_url column not contained in survey.data object.')
@@ -135,7 +147,7 @@ class survey:
 
         # Arrange date features
 
-        self.data['start_date'] = clean_startdate(self.data['start_date'])
+        self.data['start_date'] = clean_date(self.data['start_date'])
         
         self.data = pd.concat(
             [date_features(self.data['start_date']), self.data],
@@ -370,7 +382,7 @@ def string_nexcl(x):
         print(repr(e))
     return(x)
     
-def clean_startdate(x):
+def clean_date(x):
     try:
         x = pd.to_datetime(x)
                
@@ -533,3 +545,17 @@ def get_org(x):
             section3]
         
     return(row)
+
+def normalise(x):
+    
+    x = (x - np.mean(x)) / np.std(x)
+    return(x)
+
+def time_delta(x,y):
+    
+    # Expects datetime objects
+
+    delta = x - y
+    delta = delta.astype('timedelta64[s]')
+    delta = normalise(delta.astype('int'))
+    return(delta)
