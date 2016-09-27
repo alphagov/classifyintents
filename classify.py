@@ -132,57 +132,6 @@ class survey:
             print('full_url column not contained in survey.data object.')
             print('Are you working on a raw data frame? You should be!')
             
-    def clean(self):
-
-        self.data = self.raw.copy()
-
-        # Use mapping to rename and subset columns
-
-        self.data.rename(columns = self.mapping, inplace=True)
-
-	# Subset columns mentioned in mapping dict
-
-        cols = list(self.mapping.values())
-        self.data = self.data[cols]
-
-        # Arrange date features
-
-        self.data['start_date'] = clean_date(self.data['start_date'])
-        
-        self.data = pd.concat(
-            [date_features(self.data['start_date']), self.data],
-            axis = 1
-        )
-
-        # Features on column names
-        try:
-            for col in self.data.columns:
-                
-                # Is the column entirely NaN?
-                # Currently this is only implemented for comment columns
-                # May make sense to do this for all column types...
-                
-                all_null = (self.data[col].isnull().sum() == len(self.data[col]))
-                
-                if col in self.categories:
-                    self.data[col] = clean_category(self.data[col])
-                elif 'comment' in col and not all_null:
-                    self.data[col + '_capsratio'] = [string_capsratio(x) for x in self.data[col]]
-                    self.data[col + '_nexcl'] = [string_nexcl(x) for x in self.data[col]]
-                    self.data[col + '_len'] = string_len(self.data[col])
-                    self.data[col] = clean_comment(self.data[col])
-                elif col in self.codes:
-                    self.data[col] = clean_code(self.data[col], self.code_levels)
-                    
-        except Exception as e:
-            print('Error cleaning ' + col + ' column')
-            print(
-            'Note that an error here probably signifies that the subset ',
-            'method will not work. Remove problem columns from selection ',
-            'before continuing to subset.'
-                 )
-            print(repr(e))
-
     # Define code to encode to true (defualt to ok)
 
     def trainer(self, classes = None):
@@ -199,7 +148,7 @@ class survey:
             # There is an argument for doing this in the .clean() method.
             # It might useful to be able to call the data before this is
             # applied however. Note that after running load(), clean(),
-            # rainer() there are now three similar copies of the data being
+            # trainer() there are now three similar copies of the data being
             # stored within the class object. At the present small scale this
             # is not a problem, but in time it may be necessary to readress 
             # this.
@@ -269,28 +218,6 @@ class survey:
         'Unnamed: 15':'comment_other_where_for_help'
     }
 
-    mapping = {
-        'uuid': 'uuid',
-        'Respondent ID':'respondent_ID',
-        'Start Date':'start_date',
-        'Page':'page',
-        'Org':'org',
-        'Section':'section',
-        'Work or Personal':'cat_work_or_personal',
-        'What work?':'comment_what_work',
-        'Satisfaction':'cat_satisfaction',
-        'Describe Why You Came Today':'comment_why_you_came',
-        'Satisfaction Comment, Describe Why You Came Today, Further comments':'comment_why_you_came_satisfaction',
-        'Found?':'cat_found_looking_for',
-        'Other (Found What)':'comment_other_found_what',
-        'Help?':'cat_anywhere_else_help',
-        'Other (Elsewhere For Help)':'comment_other_else_help',
-        'Where did you go for help?':'comment_where_for_help',
-        'Other (Elsewhere For Help), Where did you go for help?':'comment_other_where_for_help',
-        'Further comments':'comment_further_comments',
-        'CODE':'code1',
-    }
-    
     categories = [
         # May be necessary to include date columns at some juncture  
         #'weekday', 'day', 'week', 'month', 'year', 
@@ -298,17 +225,10 @@ class survey:
         'cat_satisfaction', 'cat_found_looking_for', 
         'cat_anywhere_else_help'
     ]
-
+  
     comments = [
         'comment_what_work', 'comment_why_you_came', 'comment_other_found_what',
-        'comment_other_else_help', 'comment_where_for_help',
-        'comment_why_you_came_satisfaction', 'comment_further_comments'
-    ]
-    
-    raw_comments = [
-        'comment_what_work', 'comment_why_you_came', 'comment_other_found_what',
-        'comment_other_else_help', 'comment_other_where_for_help', 'comment_where_for_help',
-        'comment_why_you_came_satisfaction', 'comment_further_comments'
+        'comment_other_else_help', 'comment_other_where_for_help', 'comment_where_for_help', 'comment_further_comments'
     ]
     
     codes = [
@@ -326,7 +246,7 @@ class survey:
     'address-problem', 'verify'
     ]
 
-    selection = ['uuid', 'weekday', 'day', 'week', 'month', 'year'] + categories + [(x + '_len') for x in comments] + [(x + '_nexcl') for x in comments] + [(x + '_capsratio') for x in comments]
+    selection = ['uuid', 'weekday', 'day', 'week', 'month', 'year', 'time_delta'] + categories + [(x + '_len') for x in comments] + [(x + '_nexcl') for x in comments] + [(x + '_capsratio') for x in comments]
 
 def drop_sub(x):
     if x.iloc[0,].str.match('Open-Ended Response').sum():
@@ -494,6 +414,8 @@ def cleaner(row):
     text = [p_stemmer.stem(i) for i in text]     # Stemming (reducing words to their root)
     return(text)
 
+## Functions dealing with the API lookup
+
 def lookup(r,page,index):        
     try:
         if page == 'mainstream_browse_pages':
@@ -545,6 +467,8 @@ def get_org(x):
             section3]
         
     return(row)
+
+## Functions dealing with developing a time difference feature
 
 def normalise(x):
     
