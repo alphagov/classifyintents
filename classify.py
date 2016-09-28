@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
+import re
 from sklearn.preprocessing import LabelEncoder
 import uuid
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
+from nltk import ngrams
 import requests
 
 class survey:
@@ -412,7 +414,11 @@ def cleaner(row):
     text = text.split()                          # Splits the data into individual words 
     text = [w for w in text if not w in stops]   # Removes stopwords
     text = [p_stemmer.stem(i) for i in text]     # Stemming (reducing words to their root)
-    return(text)
+    text3 = list(ngrams(text, 2))
+    text2 = list(ngrams(text, 3))
+    text = text + text2 + text3
+    text = list([concat_ngrams(i) for i in text])
+    return(text)  
 
 ## Functions dealing with the API lookup
 
