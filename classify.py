@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import re, requests, time
+import re, requests
 from sklearn.preprocessing import LabelEncoder
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
@@ -38,6 +38,14 @@ class survey:
         
     def clean_raw(self):
 
+        print('**********************************')
+        print('*** First cleaning of the data ***')
+        print('**********************************')
+        print('* Creating new date features')
+        print('* Adding simple text features')
+        print('* Cleaning categorical features')
+        print('The cleaned data are stored in survey.data')
+
         self.data = self.raw.copy()
 
         # Use mapping to rename and subset columns
@@ -62,6 +70,7 @@ class survey:
         )
         
         # Classify all empty relevant comments as 'none'. This has been moved out of the class!
+        # Ned to have a think about whether this should be in the class or not!
 
         #no_comments = (self.data['comment_further_comments'] == 'none') & (self.data['comment_where_for_help'] == 'none') & (self.data['comment_other_where_for_help'] == 'none') & (self.data['comment_why_you_came'] == 'none')
 
@@ -87,6 +96,7 @@ class survey:
                     self.data[col] = clean_comment(self.data[col])
                 elif col in self.codes:
                     self.data[col] = clean_code(self.data[col], self.code_levels)
+            self.data['respondent_ID'].astype('int')
                     
         except Exception as e:
             print('Error cleaning ' + col + ' column')
@@ -146,6 +156,7 @@ class survey:
             
                 else:
                     self.data.loc[index, 'page'] = '/' + reg_match('.*', row['full_url'], 0)
+
         else:
             print('Full_url column not contained in survey.data object.')
             print('Are you working on a raw data frame? You should be!')
@@ -165,8 +176,7 @@ class survey:
         print('*** Looking up urls on gov.uk content API ***')
         print('*** This will take some time............. ***')
         print('*********************************************')
-
-        time.sleep(2)
+        print('* New org and section will merge into intent.data')
 
         # This is all a bit messy from the origin function.
         # Would be good to clean this up at some point.
@@ -196,7 +206,7 @@ class survey:
         
         print('Lookup complete, merging results back into survey.data')
 
-        self.data = pd.merge(left = self.data.drop(['org','section'], axis=1), right = self.unique_pages, on='page', how='left')
+        self.data = pd.merge(right = self.data.drop(['org','section'], axis=1), left = self.unique_pages, on='page', how='outer')
      
     # Define code to encode to true (defualt to ok)
 
@@ -505,35 +515,43 @@ def get_org(x):
     
     print('Looking up ' + url)
     
-    #url = "https://www.gov.uk/api/search.json?filter_link[]=%s&fields=y" % (x, y)
+    try:
+       
+        #url = "https://www.gov.uk/api/search.json?filter_link[]=%s&fields=y" % (x, y)
 
-    # read JSON result into r
-    r = requests.get(url).json()
+        # read JSON result into r
+        r = requests.get(url).json()
 
-    # chose the fields you want to scrape. This scrapes the first 5 instances of organisation, error checking as it goes
-    # this exception syntax might not work in Python 3
+        # chose the fields you want to scrape. This scrapes the first 5 instances of organisation, error checking as it goes
+        # this exception syntax might not work in Python 3
 
-    organisation0 = lookup(r,'organisations', 0)
-    organisation1 = lookup(r,'organisations', 1)
-    organisation2 = lookup(r,'organisations', 2)
-    organisation3 = lookup(r,'organisations', 3)
-    organisation4 = lookup(r,'organisations', 4)
-    section0 = lookup(r,'mainstream_browse_pages', 0)
-    section1 = lookup(r,'mainstream_browse_pages', 1)
-    section2 = lookup(r,'mainstream_browse_pages', 2)
-    section3 = lookup(r,'mainstream_browse_pages', 3)
+        organisation0 = lookup(r,'organisations', 0)
+        organisation1 = lookup(r,'organisations', 1)
+        organisation2 = lookup(r,'organisations', 2)
+        organisation3 = lookup(r,'organisations', 3)
+        organisation4 = lookup(r,'organisations', 4)
+        section0 = lookup(r,'mainstream_browse_pages', 0)
+        section1 = lookup(r,'mainstream_browse_pages', 1)
+        section2 = lookup(r,'mainstream_browse_pages', 2)
+        section3 = lookup(r,'mainstream_browse_pages', 3)
 
-    row = [organisation0,
-            organisation1,
-            organisation2,
-            organisation3,
-            organisation4,
-            section0,
-            section1,
-            section2,
-            section3]
+        row = [organisation0,
+                organisation1,
+                organisation2,
+                organisation3,
+                organisation4,
+                section0,
+                section1,
+                section2,
+                section3]
         
-    return(row)
+        return(row)
+
+    except Exception as e:
+        print('Error looking up ' + url)
+        print('Returning "none"')
+        row = ['none'] * 9
+        return(row)
 
 ## Functions dealing with developing a time difference feature
 
