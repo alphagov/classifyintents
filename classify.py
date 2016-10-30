@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import re, requests
 from sklearn.preprocessing import LabelEncoder
-from nltk.corpus import stopwords
-from nltk.stem.porter import PorterStemmer
-from nltk import ngrams
+#from nltk.corpus import stopwords
+#from nltk.stem.porter import PorterStemmer
+#from nltk import ngrams
 
 class survey:
     """Class for handling intents surveys from google sheets"""
@@ -26,6 +26,11 @@ class survey:
             # If raw csv from survey monkey: strip the second row of headers:
             
             self.raw = drop_sub(self.raw)
+
+            # Strange behaviour leading to top 10 rows being filled with NaN.
+            # Drop these by dropping rows with now RespondentID
+
+            self.raw.dropna(subset=['RespondentID'],inplace=True)
 
             self.raw['RespondentID'] = self.raw['RespondentID'].astype('int')
             
@@ -491,28 +496,28 @@ def clean_code(x, levels):
 
 # Below copied from Tom Ewings LDA notebook
 
-stops = set(stopwords.words("english"))     # Creating a set of Stopwords
-p_stemmer = PorterStemmer() 
-
-def concat_ngrams(x):
-    #if len(x) > 1 & isinstance(x, list):
-    if isinstance(x, tuple):
-        x = '_'.join(x)
-    return(x)
-
-def cleaner(row):
-    
-    # Function to clean the text data and prep for further analysis
-    text = row.lower()                      # Converts to lower case
-    text = re.sub("[^a-zA-Z]"," ",text)          # Removes punctuation
-    text = text.split()                          # Splits the data into individual words 
-    text = [w for w in text if not w in stops]   # Removes stopwords
-    text = [p_stemmer.stem(i) for i in text]     # Stemming (reducing words to their root)
-    text3 = list(ngrams(text, 2))
-    text2 = list(ngrams(text, 3))
-    text = text + text2 + text3
-    text = list([concat_ngrams(i) for i in text])
-    return(text)  
+#stops = set(stopwords.words("english"))     # Creating a set of Stopwords
+#p_stemmer = PorterStemmer() 
+#
+#def concat_ngrams(x):
+#    #if len(x) > 1 & isinstance(x, list):
+#    if isinstance(x, tuple):
+#        x = '_'.join(x)
+#    return(x)
+#
+#def cleaner(row):
+#    
+#    # Function to clean the text data and prep for further analysis
+#    text = row.lower()                      # Converts to lower case
+#    text = re.sub("[^a-zA-Z]"," ",text)          # Removes punctuation
+#    text = text.split()                          # Splits the data into individual words 
+#    text = [w for w in text if not w in stops]   # Removes stopwords
+#    text = [p_stemmer.stem(i) for i in text]     # Stemming (reducing words to their root)
+#    text3 = list(ngrams(text, 2))
+#    text2 = list(ngrams(text, 3))
+#    text = text + text2 + text3
+#    text = list([concat_ngrams(i) for i in text])
+#    return(text)  
 
 ## Functions dealing with the API lookup
 
