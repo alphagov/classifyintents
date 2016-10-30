@@ -26,6 +26,8 @@ class survey:
             # If raw csv from survey monkey: strip the second row of headers:
             
             self.raw = drop_sub(self.raw)
+
+            self.raw['RespondentID'] = self.raw['RespondentID'].astype('int')
             
         except Exception as e:
             return('Error loading raw data from file ' + x)
@@ -110,7 +112,6 @@ class survey:
 
                 elif col in self.codes:
                     self.data[col] = clean_code(self.data[col], self.code_levels)
-            self.data['respondent_ID'].astype('int')
                     
         except Exception as e:
             print('Error cleaning ' + col + ' column')
