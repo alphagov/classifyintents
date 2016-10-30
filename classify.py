@@ -79,7 +79,7 @@ class survey:
         # Features on column names
 
         try:
-            for col in self.data.columns:
+            for col in self.data:
                 
                 # Is the column entirely NaN?
                 # Currently this is only implemented for comment columns
@@ -87,13 +87,27 @@ class survey:
                 
                 all_null = (self.data[col].isnull().sum() == len(self.data[col]))
                 
+                # Start by cleaning the categorical variables
+
                 if col in self.categories:
                     self.data[col] = clean_category(self.data[col])
+
+                # Now clean the comment variables
+
                 elif 'comment' in col and not all_null:
                     self.data[col + '_capsratio'] = [string_capsratio(x) for x in self.data[col]]
                     self.data[col + '_nexcl'] = [string_nexcl(x) for x in self.data[col]]
                     self.data[col + '_len'] = string_len(self.data[col])
                     self.data[col] = clean_comment(self.data[col])
+
+                elif 'comment' in col and all_null:
+                    self.data[col + '_capsratio'] = 0
+                    self.data[col + '_nexcl'] = 0
+                    self.data[col + '_len'] = 0
+                    self.data[col] = 'none'
+
+                # Finally clean the outcome codes        
+
                 elif col in self.codes:
                     self.data[col] = clean_code(self.data[col], self.code_levels)
             self.data['respondent_ID'].astype('int')
@@ -219,6 +233,7 @@ class survey:
             self.cleaned = self.data.copy()
             self.cleaned = self.data[self.selection + self.codes]
             self.cleaned = self.cleaned.dropna(how = 'any')
+            #self.cleaned.drop('respondent_ID', inplace=True)            
             
             # There is an argument for doing this in the .clean() method.
             # It might useful to be able to call the data before this is
@@ -259,6 +274,7 @@ class survey:
 
             self.cleaned = self.data.copy()
             self.cleaned = self.data[self.selection]
+            #self.cleaned.drop('respondent_ID', inplace=True)            
             self.cleaned = self.cleaned.dropna(how = 'any')
 
 # Debug            print(self.cleaned.isnull().sum())
