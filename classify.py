@@ -188,7 +188,7 @@ class survey:
 
         print('*********************************************')
         print('*** Looking up urls on gov.uk content API ***')
-        print('*** This will take some time............. ***')
+        print('*** This may take some time.............. ***')
         print('*********************************************')
         print('* New org and section will merge into intent.data')
 
@@ -205,9 +205,11 @@ class survey:
                         'section2',
                         'section3']
         
-            
-        self.org_sect = [get_org(i) for i in self.unique_pages['page']]
+        # Only run the lookup on cases where we have not already set an org and section
+                   
         
+       # self.org_sect = [get_org(i) for i in self.data.loc[((self.data.section == 'nan') &(self.data.org == 'nan')),['page']]]
+        self.org_sect = [get_org(i) for i in self.unique_pages['page']]
         self.org_sect = pd.DataFrame(self.org_sect, columns = column_names)
         self.org_sect = self.org_sect.set_index(self.unique_pages.index)
 
@@ -221,6 +223,8 @@ class survey:
         print('Lookup complete, merging results back into survey.data')
 
         self.data = pd.merge(right = self.data.drop(['org','section'], axis=1), left = self.unique_pages, on='page', how='outer')
+
+        self.data.drop_duplicates(subset=['respondent_ID'],inplace=True)
      
     # Define code to encode to true (defualt to ok)
 
@@ -233,7 +237,6 @@ class survey:
             self.cleaned = self.data.copy()
             self.cleaned = self.data[self.selection + self.codes]
             self.cleaned = self.cleaned.dropna(how = 'any')
-            #self.cleaned.drop('respondent_ID', inplace=True)            
             
             # There is an argument for doing this in the .clean() method.
             # It might useful to be able to call the data before this is
@@ -263,6 +266,8 @@ class survey:
             #self.cleaned.loc[self.cleaned['code1'] not in self.bin_true,'code1'] = 0
             #self.cleaned.loc[self.cleaned['code1'] in self.bin_true,'code1'] = 1
 
+            self.cleaned.drop('respondent_ID', axis=1, inplace=True)            
+
         except Exception as e:
             print('There was an error while running trainer method')
             print('Original error message:')
@@ -274,7 +279,6 @@ class survey:
 
             self.cleaned = self.data.copy()
             self.cleaned = self.data[self.selection]
-            #self.cleaned.drop('respondent_ID', inplace=True)            
             self.cleaned = self.cleaned.dropna(how = 'any')
 
 # Debug            print(self.cleaned.isnull().sum())
@@ -283,6 +287,8 @@ class survey:
 
             for col in self.categories:
                 self.cleaned.loc[:,col] = le.fit_transform(self.cleaned.loc[:,col])
+
+            self.cleaned.drop('respondent_ID', axis=1, inplace=True)            
 
         except Exception as e:
             print('There was an error while subsetting survey data')
