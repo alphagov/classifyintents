@@ -5,6 +5,14 @@ The module contains the `classify.survey` class which cleans and prepares the da
 
 This repository is a submodule of a larger respitory which contains supporting code: <https://github.gds/DataScience/intents_survey/>
 
+## Requirements
+
+* Python >= 3.5 
+* numpy >= 1.11.1
+* pandas >= 0.18.1
+* requests >= 2.11.1
+* scikit-learn >= 0.18
+
 ## Usage
 
 Usage of the class is described in an [ipython notebook](https://github.gds/DataScience/intents_survey/GOV.UK_intent_survey_AutoTextCategoriser_predicting.ipynb) in the [intents_survey](https://github.gds/DataScience/intents_survey/) repository.

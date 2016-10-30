@@ -541,7 +541,7 @@ def get_org(x):
 
     url = "https://www.gov.uk/api/search.json?filter_link[]=%s&fields=organisations&fields=mainstream_browse_pages" % x
     
-    print('Looking up ' + url)
+    #print('Looking up ' + url)
     
     try:
        
