@@ -180,9 +180,18 @@ class survey:
         else:
             print('Full_url column not contained in survey.data object.')
             print('Are you working on a raw data frame? You should be!')
-                
+        
+        # Take only urls where there is no org or section.
+        
         self.unique_pages = self.data.loc[(self.data['org'] == 'nan') & (self.data['section'] == 'nan'),'page']
+        
+        # Convert to a DataFrame to make easier to handle
+
         self.unique_pages = pd.DataFrame(self.unique_pages, columns = ['page'])
+        
+        # Drop duplicate pages!
+
+        self.unique_pages = self.unique_pages.drop_duplicates()
 
         print('There are ' + str(len(self.unique_pages['page'])) + ' unique URLs to query. These are stored in survey.unique_pages.')
 
