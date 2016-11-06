@@ -486,6 +486,8 @@ def time_delta(x,y):
     # Expects datetime objects
 
     delta = x - y
-    delta = delta.astype('timedelta64[s]')
+    delta = delta.total_seconds()
+    #delta = delta.astype('timedelta64[s]')
     delta = normalise(delta.astype('int'))
+    
     return(delta)

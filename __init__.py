@@ -1,2 +1,2 @@
-#from .classify import *
-from classify import *
+from classify import classify
+__all__ = ['classify']
