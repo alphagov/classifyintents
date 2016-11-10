@@ -1,9 +1,5 @@
 import nose.tools as nt
 import os, sys
-
-# There is probably a cleaner way of doing this
-
-sys.path.insert(0, os.path.abspath('../..'))
 import pandas as pd
 from classify import *
 import numpy as np

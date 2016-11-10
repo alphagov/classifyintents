@@ -8,10 +8,7 @@ This repository is a submodule of a larger respitory which contains supporting c
 ## Requirements
 
 * Python >= 3.5 
-* numpy >= 1.11.1
-* pandas >= 0.18.1
-* requests >= 2.11.1
-* scikit-learn >= 0.18
+See `requirements.txt`
 
 ## Usage
 
