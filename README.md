@@ -3,7 +3,7 @@
 This is a python module for use with the GOV.UK intent survey classification by machine learning algorithm.
 The module contains the `classify.survey` class which cleans and prepares the data for machine learning.
 
-This repository is a submodule of a larger respitory which contains supporting code: <https://github.gds/DataScience/intents_survey/>
+Since v0.4.0 this module should be installed as a module using the line `git+git://github.com/ivyleavedtoadflax/classify.git` in your `requirements.txt` file, and the command `pip install -r requirements.txt`.
 
 ## Requirements
 
@@ -11,9 +11,6 @@ This repository is a submodule of a larger respitory which contains supporting c
 See `requirements.txt`
 
 ## Usage
-
-Usage of the class is described in an [ipython notebook](https://github.gds/DataScience/intents_survey/GOV.UK_intent_survey_AutoTextCategoriser_predicting.ipynb) in the [intents_survey](https://github.gds/DataScience/intents_survey/) repository.
-However a bried description of the methods is described here:
 
 ### Loading data
 
@@ -75,8 +72,5 @@ When calling `intent.trainer()` a list of classes must be passed as an argument.
 As part of the method, all classes that are not specified in the list are concatenated into one, enabling one-versus-all (OVA) classification.
 
 Using the `predictor()` method will remove the outcome class, if it was present.
-
-
-
 
 

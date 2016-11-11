@@ -133,7 +133,7 @@ class survey:
             
     def clean_urls(self):
 
-        # First apply Sean Craddock's URL filtering rules, and output these cleaned URLs to 
+        # First apply URL filtering rules, and output these cleaned URLs to 
         # a DataFrame called unique_pages.
 
         print('***********************************')
@@ -521,8 +521,6 @@ def clean_code(x, levels):
         print('Original error message:')
         print(repr(e))
     return(x)
-
-# Below copied from Tom Ewings LDA notebook
 
 #stops = set(stopwords.words("english"))     # Creating a set of Stopwords
 #p_stemmer = PorterStemmer() 
