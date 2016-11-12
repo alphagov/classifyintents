@@ -344,7 +344,8 @@ class survey:
         'If you wish to comment further, please do so here.<br><strong><span style="font-size: 10pt;">Please do not include personal or financial information, eg your National Insurance number or credit card details.</span></strong>':'comment_further_comments',
         'Unnamed: 13':'comment_other_found_what',       
         'Unnamed: 17':'comment_other_else_help',
-        'Unnamed: 15':'comment_other_where_for_help'
+        'Unnamed: 15':'comment_other_where_for_help',
+        'code1':'code1'
     }
 
     categories = [
