@@ -246,12 +246,17 @@ class survey:
         self.org_sect = [get_org(i) for i in self.unique_pages['page']]
         self.org_sect = pd.DataFrame(self.org_sect, columns=column_names)
         self.org_sect = self.org_sect.set_index(self.unique_pages.index)
+ 
+        # Convert any NaNs to none, so they are not dropped when self.trainer/predictor is run
+        
+        self.org_sect['organisation0'].replace(np.nan, 'none', regex=True, inplace=True)
+        self.org_sect['section0'].replace(np.nan, 'none', regex=True, inplace=True)   
 
         # Retain the full lookup, but only add a subset of it to the clean dataframe
 
         org_sect = self.org_sect[['organisation0','section0']]
         org_sect.columns = ['org','section']
-        
+ 
         self.unique_pages = pd.concat([self.unique_pages, org_sect], axis = 1)
         
         print('Lookup complete, merging results back into survey.data')
@@ -328,7 +333,7 @@ class survey:
             print('There was an error while subsetting survey data')
             print('Original error message:')
             print(repr(e))
-            
+
     raw_mapping = {
         'RespondentID':'respondent_ID',
         'StartDate':'start_date',
