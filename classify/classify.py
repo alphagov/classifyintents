@@ -10,9 +10,14 @@ class survey:
     """Class for handling intents surveys from google sheets"""
 
     def __init__(self):
+        print('***** Instantiated survey class *****')
         pass
   
     def load(self, x):
+
+        print('***** Running load method *****')
+        print('*** Loading data ', x)
+
         try:
             
             self.raw = pd.read_csv(x)
@@ -45,13 +50,8 @@ class survey:
         
     def clean_raw(self):
 
-        print('**********************************')
-        print('*** First cleaning of the data ***')
-        print('**********************************')
-        print('* Creating new date features')
-        print('* Adding simple text features')
-        print('* Cleaning categorical features')
-        print('The cleaned data are stored in survey.data')
+        print('***** Running clean_raw method *****')
+        print('*** The cleaned data are stored in survey.data')
 
         self.data = self.raw.copy()
 
@@ -133,12 +133,10 @@ class survey:
             
     def clean_urls(self):
 
+        print('***** Running clean_urls() method *****')
+
         # First apply URL filtering rules, and output these cleaned URLs to 
         # a DataFrame called unique_pages.
-
-        print('***********************************')
-        print('*** Applying URL cleaning rules ***')
-        print('***********************************')
 
         # Quick fix here - convert the org and section columns back to strings, they previously
         # were converted to categorical. Need to fix this higher upstream.
@@ -213,7 +211,7 @@ class survey:
 
         self.unique_pages = self.unique_pages.drop_duplicates()
 
-        print('There are ' + str(len(self.unique_pages['page'])) + ' unique URLs to query. These are stored in survey.unique_pages.')
+        print('*** There are ' + str(len(self.unique_pages['page'])) + ' unique URLs to query. These are stored in survey.unique_pages.')
 
 
     def api_lookup(self):
@@ -221,11 +219,8 @@ class survey:
         # Run the api lookup, then subset the return (we're not really interested in most of what we get back)
         # then merge this back into self.data, using 'page' as the merge key.
 
-        print('*********************************************')
-        print('*** Looking up urls on gov.uk content API ***')
-        print('*** This may take some time.............. ***')
-        print('*********************************************')
-        print('* New org and section will merge into intent.data')
+        print('***** Running api_lookup() method *****')
+        print('*** This may take some time depending on the number of URLS to look up')
 
         # This is all a bit messy from the origin function.
         # Would be good to clean this up at some point.
@@ -259,7 +254,7 @@ class survey:
  
         self.unique_pages = pd.concat([self.unique_pages, org_sect], axis = 1)
         
-        print('Lookup complete, merging results back into survey.data')
+        print('*** Lookup complete, merging results back into survey.data')
 
         self.data = pd.merge(right = self.data.drop(['org','section'], axis=1), left = self.unique_pages, on='page', how='outer')
 
@@ -268,6 +263,8 @@ class survey:
     # Define code to encode to true (defualt to ok)
 
     def trainer(self, classes = None):
+
+        print('***** Running trainer method *****')
 
         if classes == None:
             classes = ['ok']
@@ -313,6 +310,8 @@ class survey:
             print(repr(e))
 
     def predictor(self):
+
+        print('***** Running predictor method *****')
 
         try:
 
