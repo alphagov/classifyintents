@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import numpy as np
 import pandas as pd
 import re, requests
@@ -39,6 +41,12 @@ class survey:
 
             self.raw['RespondentID'] = self.raw['RespondentID'].astype('int')
             
+            # Need to ensure that there is a code1 column in the data, which there might not
+            # be if using for new predictions.
+
+            if 'code1' not in self.raw.columns.tolist():
+                self.raw['code1'] = str()            
+    
         except Exception as e:
             return('Error loading raw data from file ' + x)
             print('Original error message:')
@@ -348,8 +356,8 @@ class survey:
         'If you wish to comment further, please do so here.<br><strong><span style="font-size: 10pt;">Please do not include personal or financial information, eg your National Insurance number or credit card details.</span></strong>':'comment_further_comments',
         'Unnamed: 13':'comment_other_found_what',       
         'Unnamed: 17':'comment_other_else_help',
-        'Unnamed: 15':'comment_other_where_for_help'#,
-        #'code1':'code1'
+        'Unnamed: 15':'comment_other_where_for_help',
+        'code1' : 'code1'
     }
 
     categories = [
