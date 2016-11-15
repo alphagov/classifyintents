@@ -1,10 +1,11 @@
+
 import nose.tools as nt
 import os, sys
 import pandas as pd
 from classify import *
 import numpy as np
 
-class TestCleanRaw:
+class TestTrainer:
     
     # Would be run before each class method
 
@@ -19,13 +20,13 @@ class TestCleanRaw:
     @classmethod
     def setup_class(self):
                 
-        print('Loading test_data/raw_test_data.csv into survey class')
-        print('This test dataset tests basic functionality')
+        print('********** Running TestTrainer class')
         
         self.a = classify.survey()
         self.a.load('test_data/raw_test_data.csv')
         self.a.clean_raw()
-        self.columns = self.a.data.columns.tolist().sort()
+        self.a.clean_urls()
+        self.a.trainer()
 
         # Note fillna otherwise this test will fail!
 
@@ -38,10 +39,10 @@ class TestCleanRaw:
 
     # Test whether it works on a single instance
 
-    def test_unique_pages_df(self):
+    def test_unique_pageVs_df(self):
 
         nt.assert_equal(
-                self.columns, 
-                self.clean_raw_expected_columns
+                1, 
+                1
                 )
 
