@@ -69,12 +69,12 @@ class survey:
         # Check here: if code1 is not in the raw data, i.e. we are predicting, not
         # training, then add the column to the dataframe.
 
-        if 'code1' not in self.raw.columns.tolist():
-            self.raw['code1'] = str()            
-        
+        if 'code1' not in self.data.columns.tolist():
+            self.data['code1'] = str()            
+        print(self.data.columns)
         # Strip down only to the columns listed in raw.mapping - append code1 here
         # as it should always now be present in the data.    
-           
+        
         self.data = self.data[cols.append('code1')]
 
         # Arrange date features

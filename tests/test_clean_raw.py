@@ -29,7 +29,11 @@ class TestCleanRaw:
 
         # Note fillna otherwise this test will fail!
 
-        self.clean_raw_expected_columns = pd.read_csv('test_data/data_clean_raw_expected_columns.csv',skip_blank_lines=False).fillna('')
+        self.clean_raw_expected_columns = pd.read_csv(
+            'test_data/data_clean_raw_expected_columns.csv',
+            skip_blank_lines=False
+            ).fillna('')
+
         self.clean_raw_expected_columns = self.clean_raw_expected_columns['columns'].tolist().sort()
    
     #@classmethod
