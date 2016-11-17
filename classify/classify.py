@@ -41,11 +41,6 @@ class survey:
 
             self.raw['RespondentID'] = self.raw['RespondentID'].astype('int')
             
-            # Need to ensure that there is a code1 column in the data, which there might not
-            # be if using for new predictions.
-
-            if 'code1' not in self.raw.columns.tolist():
-                self.raw['code1'] = str()            
     
         except Exception as e:
             return('Error loading raw data from file ' + x)
@@ -70,7 +65,17 @@ class survey:
         # Subset columns mentioned in mapping dict
 
         cols = list(self.raw_mapping.values())
-        self.data = self.data[cols]
+        
+        # Check here: if code1 is not in the raw data, i.e. we are predicting, not
+        # training, then add the column to the dataframe.
+
+        if 'code1' not in self.raw.columns.tolist():
+            self.raw['code1'] = str()            
+        
+        # Strip down only to the columns listed in raw.mapping - append code1 here
+        # as it should always now be present in the data.    
+           
+        self.data = self.data[cols.append('code1')]
 
         # Arrange date features
 
@@ -356,8 +361,7 @@ class survey:
         'If you wish to comment further, please do so here.<br><strong><span style="font-size: 10pt;">Please do not include personal or financial information, eg your National Insurance number or credit card details.</span></strong>':'comment_further_comments',
         'Unnamed: 13':'comment_other_found_what',       
         'Unnamed: 17':'comment_other_else_help',
-        'Unnamed: 15':'comment_other_where_for_help',
-        'code1' : 'code1'
+        'Unnamed: 15':'comment_other_where_for_help'
     }
 
     categories = [
