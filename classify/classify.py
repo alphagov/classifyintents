@@ -66,17 +66,19 @@ class survey:
 
         cols = list(self.raw_mapping.values())
         
+        # Strip down only to the columns listed in raw.mapping - append code1 here
+        # as it should always now be present in the data.    
+        
+        cols.extend(['code1'])
+
         # Check here: if code1 is not in the raw data, i.e. we are predicting, not
         # training, then add the column to the dataframe.
 
         if 'code1' not in self.data.columns.tolist():
             self.data['code1'] = str()            
-        print(self.data.columns)
-        # Strip down only to the columns listed in raw.mapping - append code1 here
-        # as it should always now be present in the data.    
         
-        self.data = self.data[cols.append('code1')]
-
+        self.data = self.data[cols]
+        
         # Arrange date features
 
         self.data['start_date'] = clean_date(self.data['start_date'])
@@ -134,7 +136,6 @@ class survey:
 
                 elif col in self.codes:
                     self.data[col] = clean_code(self.data[col], self.code_levels)
-                    
         except Exception as e:
             print('Error cleaning ' + col + ' column')
             print(
@@ -143,7 +144,7 @@ class survey:
             'before continuing to subset.'
                  )
             print(repr(e))
-            
+
     def clean_urls(self):
 
         print('***** Running clean_urls() method *****')
