@@ -9,5 +9,5 @@ setup(name='classify',
       author_email='matthew.a.upson@gmail.com',
       license='OGL',
       zip_safe=False,
-      install_requires=['pandas==','numpy==']a
+      install_requires=['pandas','numpy']
       )
