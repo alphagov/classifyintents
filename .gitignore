@@ -91,9 +91,11 @@ ENV/
 # Mac stuff
 Icon
 
-
-
 .Rhistory
 .~lock*
 .DS_Store
 *.ipynb
+
+# Vim stuff
+
+*.swp

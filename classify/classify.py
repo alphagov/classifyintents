@@ -1,7 +1,10 @@
+# coding: utf-8
+
 import numpy as np
 import pandas as pd
 import re, requests
 from sklearn.preprocessing import LabelEncoder
+import os.path
 #from nltk.corpus import stopwords
 #from nltk.stem.porter import PorterStemmer
 #from nltk import ngrams
@@ -10,9 +13,14 @@ class survey:
     """Class for handling intents surveys from google sheets"""
 
     def __init__(self):
+        print('***** Instantiated survey class *****')
         pass
   
     def load(self, x):
+
+        print('***** Running load method *****')
+        print('*** Loading data ', x)
+
         try:
             
             self.raw = pd.read_csv(x)
@@ -34,10 +42,14 @@ class survey:
 
             self.raw['RespondentID'] = self.raw['RespondentID'].astype('int')
             
-        except Exception as e:
-            return('Error loading raw data from file ' + x)
-            print('Original error message:')
-            print(repr(e))
+        except FileNotFoundError:
+            print('*** Target file ', x,' does not exist')
+            raise
+            
+        except: 
+            print('Unexpected error loading raw data from file ' + x)
+            print('Original error message:', sys.exc_info()[0])
+            raise
 
         # Define mappings and columns used in iterators
 
@@ -45,13 +57,8 @@ class survey:
         
     def clean_raw(self):
 
-        print('**********************************')
-        print('*** First cleaning of the data ***')
-        print('**********************************')
-        print('* Creating new date features')
-        print('* Adding simple text features')
-        print('* Cleaning categorical features')
-        print('The cleaned data are stored in survey.data')
+        print('***** Running clean_raw method *****')
+        print('*** The cleaned data are stored in survey.data')
 
         self.data = self.raw.copy()
 
@@ -62,9 +69,21 @@ class survey:
         # Subset columns mentioned in mapping dict
 
         cols = list(self.raw_mapping.values())
-        self.data = self.data[cols]
+        
+        # Strip down only to the columns listed in raw.mapping - append code1 here
+        # as it should always now be present in the data.    
+        
+        cols.extend(['code1'])
 
-        # Arrange date features
+        # Check here: if code1 is not in the raw data, i.e. we are predicting, not
+        # training, then add the column to the dataframe.
+
+        if 'code1' not in self.data.columns.tolist():
+            self.data['code1'] = str()            
+        
+        self.data = self.data[cols]
+        
+# Arrange date features
 
         self.data['start_date'] = clean_date(self.data['start_date'])
         self.data['end_date'] = clean_date(self.data['end_date'])
@@ -119,26 +138,19 @@ class survey:
 
                 # Finally clean the outcome codes        
 
-                elif col in self.codes:
-                    self.data[col] = clean_code(self.data[col], self.code_levels)
-                    
-        except Exception as e:
+                #elif col in self.codes:
+                #    self.data[col] = clean_code(self.data[col], self.code_levels)
+        except: 
             print('Error cleaning ' + col + ' column')
-            print(
-            'Note that an error here probably signifies that the subset ',
-            'method will not work. Remove problem columns from selection ',
-            'before continuing to subset.'
-                 )
-            print(repr(e))
-            
+            print('Original error message:', sys.exc_info()[0])
+            raise
+
     def clean_urls(self):
+
+        print('***** Running clean_urls() method *****')
 
         # First apply URL filtering rules, and output these cleaned URLs to 
         # a DataFrame called unique_pages.
-
-        print('***********************************')
-        print('*** Applying URL cleaning rules ***')
-        print('***********************************')
 
         # Quick fix here - convert the org and section columns back to strings, they previously
         # were converted to categorical. Need to fix this higher upstream.
@@ -213,7 +225,7 @@ class survey:
 
         self.unique_pages = self.unique_pages.drop_duplicates()
 
-        print('There are ' + str(len(self.unique_pages['page'])) + ' unique URLs to query. These are stored in survey.unique_pages.')
+        print('*** There are ' + str(len(self.unique_pages['page'])) + ' unique URLs to query. These are stored in survey.unique_pages.')
 
 
     def api_lookup(self):
@@ -221,11 +233,8 @@ class survey:
         # Run the api lookup, then subset the return (we're not really interested in most of what we get back)
         # then merge this back into self.data, using 'page' as the merge key.
 
-        print('*********************************************')
-        print('*** Looking up urls on gov.uk content API ***')
-        print('*** This may take some time.............. ***')
-        print('*********************************************')
-        print('* New org and section will merge into intent.data')
+        print('***** Running api_lookup() method *****')
+        print('*** This may take some time depending on the number of URLS to look up')
 
         # This is all a bit messy from the origin function.
         # Would be good to clean this up at some point.
@@ -259,7 +268,7 @@ class survey:
  
         self.unique_pages = pd.concat([self.unique_pages, org_sect], axis = 1)
         
-        print('Lookup complete, merging results back into survey.data')
+        print('*** Lookup complete, merging results back into survey.data')
 
         self.data = pd.merge(right = self.data.drop(['org','section'], axis=1), left = self.unique_pages, on='page', how='outer')
 
@@ -268,6 +277,8 @@ class survey:
     # Define code to encode to true (defualt to ok)
 
     def trainer(self, classes = None):
+
+        print('***** Running trainer method *****')
 
         if classes == None:
             classes = ['ok']
@@ -314,6 +325,8 @@ class survey:
 
     def predictor(self):
 
+        print('***** Running predictor method *****')
+
         try:
 
             self.cleaned = self.data.copy()
@@ -349,8 +362,7 @@ class survey:
         'If you wish to comment further, please do so here.<br><strong><span style="font-size: 10pt;">Please do not include personal or financial information, eg your National Insurance number or credit card details.</span></strong>':'comment_further_comments',
         'Unnamed: 13':'comment_other_found_what',       
         'Unnamed: 17':'comment_other_else_help',
-        'Unnamed: 15':'comment_other_where_for_help',
-        'code1':'code1'
+        'Unnamed: 15':'comment_other_where_for_help'
     }
 
     categories = [

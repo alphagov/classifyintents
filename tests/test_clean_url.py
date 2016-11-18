@@ -19,20 +19,6 @@ class TestCleanUrls:
     @classmethod
     def setup_class(self):
                 
-        print('Loading test_data/raw_test_data.csv into survey class')
-        print('This test dataset tests basic functionality')
-        
-        self.a = classify.survey()
-        self.a.load('test_data/raw_test_data.csv')
-        self.a.clean_raw()
-        self.a.clean_urls()
-
-        print('Loading test_data/clean_url_expected_toy.csv')
-        print('This test dataset provides the expected values returned from raw_test_data.csv')
-
-        self.clean_url_expected_toy = pd.read_csv('test_data/clean_url_expected_toy.csv')
-        self.clean_url_expected_toy = self.clean_url_expected_toy['page'].tolist() 
-        
         print('Load test_data/raw_test_data_2.csv into survey class')
         print('This test dataset tests basic functionality with real cases')
 
@@ -49,9 +35,6 @@ class TestCleanUrls:
         self.c.clean_raw()
         self.c.clean_urls()
 
-        print('Loading test_data/clean_url_expected_toy.csv')
-        print('This test dataset provides the expected values returned from raw_test_data.csv')
-
         # Note fillna otehrwise this test will fail!
 
         self.clean_url_expected_pages = pd.read_csv('test_data/data_page_expected.csv',skip_blank_lines=False).fillna('')
@@ -65,53 +48,22 @@ class TestCleanUrls:
     #def teardown_class(cls):
     #    print ("teardown_class() after any methods in this class")
 
-    # Test whether it works on a single instance
-
-    def test_unique_pages_df(self):
-
-        nt.assert_true(
-                isinstance(self.a.unique_pages, pd.DataFrame)
-                )
-
-    def test_a_data_len(self):
-
-        nt.assert_equal(
-                len(self.a.data['full_url']),
-                14
-                )
-
-    def test_unique_pages_len(self):
-
-        nt.assert_equal(
-                len(self.a.unique_pages),
-                6
-                )
-
-    # Test on toy example
-
-    def test_unique_pages_outcome(self):
-    
-        nt.assert_equal(
-                self.a.unique_pages['page'].tolist(),
-                self.clean_url_expected_toy 
-                )
-
     # Test on n=198 example
 
-    def test_unique_pages_df_2(self):
+    def test_unique_pages_is_a_dataframe(self):
     
         nt.assert_true(
                 isinstance(self.b.unique_pages, pd.DataFrame)
                 )
 
-    def test_b_data_len_2(self):
+    def test_full_url_length_is_correct(self):
     
         nt.assert_equal(
                 len(self.b.data['full_url']),
                 198
                 )
 
-    def test_unique_pages_len_2(self):
+    def test_unique_pages_length_is_correct(self):
 
         nt.assert_equal(
                 len(self.b.unique_pages['page']),
@@ -120,31 +72,22 @@ class TestCleanUrls:
 
     # Test the outcomes based on Sean's Rules
 
-    def test_clean_url_rules_pages(self):
-
-        print(self.c.unique_pages['page'].tolist())
-        print(self.clean_url_expected_pages)
+    def test_clean_url_returns_expected_page(self):
 
         nt.assert_equal(
                 self.c.unique_pages['page'].tolist(),
                 self.clean_url_expected_pages 
                 )
 
-    def test_clean_url_rules_section(self):
+    def test_clean_url_returns_expected_section(self):
      
-        print(self.c.data['section'].tolist())
-        print(self.data_expected_section)
-
         nt.assert_equal(
                 self.c.data['section'].tolist(),
                 self.data_expected_section 
                 )
     
-    def test_clean_url_rules_org(self):
+    def test_clean_url_returns_expected_org(self):
      
-        print(self.c.data['org'].tolist())
-        print(self.data_expected_org)
-        
         nt.assert_equal(
                 self.c.data['org'].tolist(),
                 self.data_expected_org 

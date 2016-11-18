@@ -3,6 +3,11 @@
 init:
 	pip install -r requirements.txt
 
+local:
+	pip install -e ./
+update:
+	pip install git+git://github.com/ivyleavedtoadflax/classify.git@dev --upgrade
+
 test:
 	nosetests
 
