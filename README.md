@@ -1,3 +1,5 @@
+[![GitHub tag](https://img.shields.io/github/tag/ivyleavedtoadflax/classify.svg)]()
+
 # classify
 
 This is a python module for use with the GOV.UK intent survey classification by machine learning algorithm.
