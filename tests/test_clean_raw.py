@@ -1,7 +1,7 @@
 import nose.tools as nt
 import os, sys
 import pandas as pd
-from classify import *
+from classifyintents import *
 import numpy as np
 
 class TestCleanRaw:
@@ -24,14 +24,14 @@ class TestCleanRaw:
         
         # Predicting example: no code1 added
 
-        self.pred = classify.survey()
+        self.pred = classifyintents.survey()
         self.pred.load('test_data/raw_test_data.csv')
         self.pred.clean_raw()
         self.pred.columns = self.pred.data.columns.tolist().sort()
 
         # Training example: code1 already added
 
-        self.train = classify.survey()
+        self.train = classifyintents.survey()
         self.train.load('test_data/raw_test_data_classified.csv')
         self.train.clean_raw()
         self.train.columns = self.train.data.columns.tolist().sort()

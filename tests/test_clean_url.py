@@ -1,7 +1,7 @@
 import nose.tools as nt
 import os, sys
 import pandas as pd
-from classify import *
+from classifyintents import *
 import numpy as np
 
 class TestCleanUrls:
@@ -22,7 +22,7 @@ class TestCleanUrls:
         print('Load test_data/raw_test_data_2.csv into survey class')
         print('This test dataset tests basic functionality with real cases')
 
-        self.b = classify.survey()
+        self.b = classifyintents.survey()
         self.b.load('test_data/raw_test_data_2.csv')
         self.b.clean_raw()
         self.b.clean_urls()
@@ -30,12 +30,12 @@ class TestCleanUrls:
         print('Load test_data/raw_test_data_3.csv into survey class')
         print('This test dataset tests the clean_url logic')
         
-        self.c = classify.survey()
+        self.c = classifyintents.survey()
         self.c.load('test_data/raw_test_data_3.csv')
         self.c.clean_raw()
         self.c.clean_urls()
 
-        # Note fillna otehrwise this test will fail!
+        # Note fillna otherwise this test will fail!
 
         self.clean_url_expected_pages = pd.read_csv('test_data/data_page_expected.csv',skip_blank_lines=False).fillna('')
         self.clean_url_expected_pages = self.clean_url_expected_pages['page'].tolist()

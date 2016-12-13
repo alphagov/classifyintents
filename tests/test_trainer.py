@@ -2,7 +2,7 @@
 import nose.tools as nt
 import os, sys
 import pandas as pd
-from classify import *
+from classifyintents import *
 import numpy as np
 
 class TestTrainerMethod:
@@ -22,7 +22,7 @@ class TestTrainerMethod:
                 
         print('Running TestTrainer class')
         
-        self.a = classify.survey()
+        self.a = classifyintents.survey()
         self.a.load('test_data/raw_test_data_classified.csv')
         self.a.clean_raw()
         self.a.clean_urls()
