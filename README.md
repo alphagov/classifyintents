@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/ukgovdatascience/classifyintents.svg?branch=master)](https://travis-ci.org/ukgovdatascience/classifyintents)
+[![codecov.io](http://codecov.io/github/ukgovdatascience/classifyintents/coverage.svg?branch=master)](http://codecov.io/github/ukgovdatascience/classifyintents?branch=master)
 [![GitHub tag](https://img.shields.io/github/tag/ukgovdatascience/classifyintents.svg)]()
 
 # classify
