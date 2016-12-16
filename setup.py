@@ -1,12 +1,12 @@
 from setuptools import setup, find_packages
 
-setup(name='classify',
+setup(name='classifyintents',
       version='0.4.3',
       description='Package supporting classification of the GOV.UK intents survey',
-      url='http://github.com/ivyleavedtoadflax/classify',
+      url='http://github.com/ukgovdatascience/classifyintents',
       author='Matthew Upson',
       packages = find_packages(exclude=['tests']),
-      author_email='matthew.a.upson@gmail.com',
+      author_email='matthew.upson@digital.cabinet-office.gov.uk',
       license='OGL',
       zip_safe=False,
       install_requires=['pandas','numpy']

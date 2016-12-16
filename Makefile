@@ -6,7 +6,7 @@ init:
 local:
 	pip install -e ./
 update:
-	pip install git+git://github.com/ivyleavedtoadflax/classify.git@dev --upgrade
+	pip install git+git://github.com/ukgovdatascience/classifyintents.git@feature/travis --upgrade
 
 test:
 	nosetests

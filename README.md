@@ -1,11 +1,12 @@
-[![GitHub tag](https://img.shields.io/github/tag/ivyleavedtoadflax/classify.svg)]()
+[![Build Status](https://travis-ci.org/ukgovdatascience/classifyintents.svg?branch=master)](https://travis-ci.org/ukgovdatascience/classifyintents)
+[![GitHub tag](https://img.shields.io/github/tag/ukgovdatascience/classifyintents.svg)]()
 
 # classify
 
 This is a python module for use with the GOV.UK intent survey classification by machine learning algorithm.
-The module contains the `classify.survey` class which cleans and prepares the data for machine learning.
+The module contains the `classifyintents.survey` class which cleans and prepares the data for machine learning.
 
-Since v0.4.0 this module should be installed as a module using the line `git+git://github.com/ivyleavedtoadflax/classify.git` in your `requirements.txt` file, and the command `pip install -r requirements.txt`.
+Since v0.4.0 this module should be installed as a module using the line `git+git://github.com/ukgovdatascience/classifyintents.git` in your `requirements.txt` file, and the command `pip install -r requirements.txt`.
 
 ## Requirements
 
@@ -19,7 +20,7 @@ See `requirements.txt`
 To begin instantiate an instance of the class with:
 
 ```
-import survey from classify
+import survey from classifyintents
 
 intent = survey()
 ```
@@ -65,7 +66,7 @@ intent.api_lookup()
 
 This step is verbose, and can take a while if there are a large number of URLs to lookup.
 
-### Preparing the data from training or prediction
+### Preparing the data for training or prediction
 
 Assuming all has gone well so far, the next step is to prepare the data for training or prediction using a machine learnign algorithm.
 This is done with the methods `intent.trainer()` and `intent.predictor()` respectively.
