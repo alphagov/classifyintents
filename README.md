@@ -4,7 +4,7 @@
 
 # classifyintents
 
-This is a python module which prepares and cleans GOV.UK survey data, in preparation for classification using a machine learnign algorithm.
+This is a python module which prepares and cleans GOV.UK survey data, in preparation for classification using a machine learning algorithm.
 The module is built around the `classifyintents.survey` and associated methods.
 
 To install this module using pip:
