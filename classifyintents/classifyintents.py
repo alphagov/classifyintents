@@ -354,7 +354,7 @@ class survey:
         'Custom Data':'full_url',
         'Are you using GOV.UK for professional or personal reasons?':'cat_work_or_personal',
         'What kind of work do you do?':'comment_what_work',
-        'Describe why you came to GOV.UK today.<br><span style="font-size: 10pt;">Please do not include personal or financial information, eg your National Insurance number or credit card details.</span>':'comment_why_you_came',
+        'Describe why you came to GOV.UK today.<br /><span style="font-size: 10pt;">Please do not include personal or financial information, eg your National Insurance number or credit card details.</span>':'comment_why_you_came',
         'Have you found what you were looking for?':'cat_found_looking_for',
         'Overall, how did you feel about your visit to GOV.UK today?':'cat_satisfaction',
         'Have you been anywhere else for help with this already?':'cat_anywhere_else_help',
