@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-import re, requests
+import re, requests, sys
 from sklearn.preprocessing import LabelEncoder
 import os.path
 #from nltk.corpus import stopwords
@@ -69,9 +69,11 @@ class survey:
 
         cols.extend(['code1'])
         
-        self.data['comment_other_found_what'] = extract_others(self.data['cat_found_looking_for'])
-        self.data['comment_other_else_help'] = extract_others(self.data['cat_anywhere_else_help'])
+        self.data['comment_other_found_what'] = extract_other(self.data['cat_found_looking_for'])
+        self.data['comment_other_else_help'] = extract_other(self.data['cat_anywhere_else_help'])
         
+        self.data['cat_found_looking_for'] = rewrite_other(self.data['cat_found_looking_for'])
+        self.data['cat_anywhere_else_help'] = rewrite_other(self.data['cat_anywhere_else_help'])  
         # This column is no longer present (but will still feature 
         # in the database.
 #self.data['comment_other_where_for_help'] = extract_others(self.data['cat_found_looking_for'])
@@ -349,7 +351,7 @@ class survey:
             print(repr(e))
 
     raw_mapping = {
-        'RespondentID':'respondent_ID',
+        'UserID':'respondent_ID',
         'Started':'start_date',
         'Ended': 'end_date',
         'Page Path':'full_url',
@@ -363,8 +365,7 @@ class survey:
         'Q7. Where did you go for help?':'comment_where_for_help',
         'Q8. If you wish to comment further, please do so here.Please do not include personal or financial information, eg your National Insurance number or credit card details.':'comment_further_comments',
     'Unnamed: 13':'comment_other_found_what',
-    'Unnamed: 17':'comment_other_else_help',
-    'Unnamed: 15':'comment_other_where_for_help'
+    'Unnamed: 17':'comment_other_else_help'
     }
 
     categories = [
@@ -377,7 +378,7 @@ class survey:
   
     comments = [
         'comment_what_work', 'comment_why_you_came', 'comment_other_found_what',
-        'comment_other_else_help', 'comment_other_where_for_help', 'comment_where_for_help', 'comment_further_comments'
+        'comment_other_else_help', 'comment_where_for_help', 'comment_further_comments'
     ]
     
     codes = [
