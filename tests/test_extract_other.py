@@ -22,7 +22,7 @@ class TestSmartSurveyFunctions:
         print('Running TestSmartSurveyFunctions class')
         
         self.original = pd.Series(['Yes', 'No', 'Not sure / Not yet', 'This is an other'])
-        self.extracted = pd.Series([np.nan, np.nan, np.nan, 'This is an other'])
+        self.extracted = pd.Series(['none', 'none', 'none', 'This is an other'])
         self.rewritten = pd.Series(['Yes', 'No', 'Not sure / Not yet', 'other'])
 
     def test_extract_other_works_as_expected(self):

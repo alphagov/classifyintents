@@ -676,15 +676,31 @@ def reg_match(r, x, i):
 # switch to smart survey
 
 def extract_other(x):
-    y = x.copy()
-    y[y.str.match('^Yes$|^No$|^Not sure / Not yet$')] = np.nan
+    try:
+        
+        # Weirdness with some columns being filled with just a comma.
+        # Is this due to improper handling of the csv file somewhere?        
+        x = x.fillna('none')
+        x = x.replace(r'^Yes$|^No$|^Not sure / Not yet$', 'none', regex=True)
 
-    return(y)
+    except Exception as e:
+        print('There was an error cleaning the', x ,'column.')
+        print('Original error message:')
+        print(repr(e))
+    return(x)
+
 
 def rewrite_other(x):
-    y = x.copy()
-    y[~y.str.match('^Yes$|^No$|^Not sure / Not yet$', na=False)] = 'other'
+    try:
+        
+        # Weirdness with some columns being filled with just a comma.
+        # Is this due to improper handling of the csv file somewhere?        
+        x = x.fillna('none')
+        x[~x.str.match('^Yes$|^No$|^Not sure / Not yet$', na=False)] = 'other'
 
-    return(y)
-
+    except Exception as e:
+        print('There was an error cleaning the', x ,'column.')
+        print('Original error message:')
+        print(repr(e))
+    return(x)
  
