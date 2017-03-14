@@ -27,7 +27,7 @@ class TestSmartSurveyFunctions:
 
     def test_extract_other_works_as_expected(self):
 
-        extract_other_a = extract_other(self.original)
+        extract_other_a = classifyintents.extract_other(self.original)
 
         nt.assert_true(
                 self.extracted.equals(extract_other_a)
@@ -35,7 +35,7 @@ class TestSmartSurveyFunctions:
 
     def test_rewrite_other_works_as_expected(self):
 
-        rewrite_other_a  = rewrite_other(self.original)       
+        rewrite_other_a  = classifyintents.rewrite_other(self.original)       
         
         nt.assert_true(
                 self.rewritten.equals(rewrite_other_a)
