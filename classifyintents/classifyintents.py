@@ -399,18 +399,13 @@ class survey:
 
     selection = ['respondent_ID', 'weekday', 'day', 'week', 'month', 'year', 'time_delta'] + categories + [(x + '_len') for x in comments] + [(x + '_nexcl') for x in comments] + [(x + '_capsratio') for x in comments]
 
-def drop_sub(x):
-    if x.iloc[0,].str.match('Open-Ended Response').sum():
-        x.drop(0, inplace=True)
-    return(x)
-
 def string_len(x):
     try:
 
         x = x.str.strip()
         x = x.str.lower()
 
-        x = x.replace(r'\,\s?\,?$|none\,', 'none', regex=True)
+        x = x.replace(r'\,\s?\,?$|none\,^\-$', 'none', regex=True)
         
         # Convert NaN to 'a'. Then when counted this will
         # be a 1. Whilst not 0, any entry with 1 is virtually
