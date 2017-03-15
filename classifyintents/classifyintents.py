@@ -365,7 +365,8 @@ class survey:
         'Q7. Where did you go for help?':'comment_where_for_help',
         'Q8. If you wish to comment further, please do so here.Please do not include personal or financial information, eg your National Insurance number or credit card details.':'comment_further_comments',
     'Unnamed: 13':'comment_other_found_what',
-    'Unnamed: 17':'comment_other_else_help'
+    'Unnamed: 17':'comment_other_else_help',
+    'dummy':'comment_other_where_for_help'
     }
 
     categories = [
@@ -378,7 +379,7 @@ class survey:
   
     comments = [
         'comment_what_work', 'comment_why_you_came', 'comment_other_found_what',
-        'comment_other_else_help', 'comment_where_for_help', 'comment_further_comments'
+        'comment_other_else_help', 'comment_other_where_for_help', 'comment_where_for_help', 'comment_further_comments'
     ]
     
     codes = [
