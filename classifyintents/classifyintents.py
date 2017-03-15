@@ -482,7 +482,7 @@ def clean_category(x):
         # May be needed if columns are integer
         x = x.apply(str)
         x = x.str.lower()
-        x = x.replace(r'null|\#Value\!', 'none', regex=True)
+        x = x.replace(r'null|\#Value\!|^-$', 'none', regex=True)
         x = x.fillna('none')
         x = pd.Series(x)
         x = x.astype('category')
