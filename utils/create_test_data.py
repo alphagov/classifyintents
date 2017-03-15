@@ -5,17 +5,15 @@ Command line tool to obfuscate survey files from smart survey
 
 # coding: utf-8
 import pandas as pd
-import random
-from loremipsum import get_sentence
-from sys import argv, exit
+import random, loremipsum, sys
 from os.path import splitext, basename
 
 # Handle commandline arguments:
 
-input_file = argv[1]
+input_file = sys.argv[1]
 
-if len(argv) == 3:
-    classified = argv[2]
+if len(sys.argv) == 3:
+    classified = sys.argv[2]
 else:
     classified = 0
 
@@ -48,7 +46,7 @@ def main():
     def rewrite_comments(x):
 
         if x != '-':
-            x = get_sentence()
+            x = loremipsum.get_sentence()
         return(x)
 
     def rc_iterate(x):
