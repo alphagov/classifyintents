@@ -55,7 +55,7 @@ class survey:
 
         # Clean date columns
         
-    def clean_raw(self):
+    def clean_raw(self, date_format=None):
 
         print('***** Running clean_raw method *****')
         print('*** The cleaned data are stored in survey.data')
@@ -85,8 +85,8 @@ class survey:
         
 # Arrange date features
 
-        self.data['start_date'] = clean_date(self.data['start_date'])
-        self.data['end_date'] = clean_date(self.data['end_date'])
+        self.data['start_date'] = clean_date(self.data['start_date'], date_format)
+        self.data['end_date'] = clean_date(self.data['end_date'], date_format)
         
         # Create time delta and normalise
 
@@ -354,7 +354,7 @@ class survey:
         'Custom Data':'full_url',
         'Are you using GOV.UK for professional or personal reasons?':'cat_work_or_personal',
         'What kind of work do you do?':'comment_what_work',
-        'Describe why you came to GOV.UK today.<br /><span style="font-size: 10pt;">Please do not include personal or financial information, eg your National Insurance number or credit card details.</span>':'comment_why_you_came',
+        'Describe why you came to GOV.UK today.<br /><span style="font-size: 10pt;">Please do not include personal or financial information, eg your National Insurance number or credit card details.</span>' : 'comment_why_you_came',
         'Have you found what you were looking for?':'cat_found_looking_for',
         'Overall, how did you feel about your visit to GOV.UK today?':'cat_satisfaction',
         'Have you been anywhere else for help with this already?':'cat_anywhere_else_help',
@@ -449,9 +449,9 @@ def string_nexcl(x):
         print(repr(e))
     return(x)
     
-def clean_date(x):
+def clean_date(x, format=None):
     try:
-        x = pd.to_datetime(x)
+        x = pd.to_datetime(x, format=format)
                
     except Exception as e:
         print('There was an error cleaning the StartDate column!')
