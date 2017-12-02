@@ -48,7 +48,7 @@ class survey:
 
         # Clean date columns
         
-    def clean_raw(self):
+    def clean_raw(self, date_format=None):
 
         print('***** Running clean_raw method *****')
         print('*** The cleaned data are stored in survey.data')
@@ -88,8 +88,8 @@ class survey:
         
 # Arrange date features
 
-        self.data['start_date'] = clean_date(self.data['start_date'])
-        self.data['end_date'] = clean_date(self.data['end_date'])
+        self.data['start_date'] = clean_date(self.data['start_date'], date_format)
+        self.data['end_date'] = clean_date(self.data['end_date'], date_format)
         
         # Create time delta and normalise
 
@@ -448,9 +448,9 @@ def string_nexcl(x):
         print(repr(e))
     return(x)
     
-def clean_date(x):
+def clean_date(x, format=None):
     try:
-        x = pd.to_datetime(x)
+        x = pd.to_datetime(x, format=format)
                
     except Exception as e:
         print('There was an error cleaning the StartDate column!')

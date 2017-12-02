@@ -5,9 +5,9 @@ setup(name='classifyintents',
       description='Package supporting classification of the GOV.UK intents survey',
       url='http://github.com/ukgovdatascience/classifyintents',
       author='Matthew Upson',
-      packages = find_packages(exclude=['tests','utils']),
+      packages = find_packages(exclude=['tests', 'utils']),
       author_email='matthew.upson@digital.cabinet-office.gov.uk',
-      license='OGL',
+      license='MIT',
       zip_safe=False,
-      install_requires=['pandas','numpy']
-      )
+      install_requires=['pandas', 'numpy']
+     )
