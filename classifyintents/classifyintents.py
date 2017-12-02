@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-import re, requests
+import re, requests, sys
 from sklearn.preprocessing import LabelEncoder
 import os.path
 #from nltk.corpus import stopwords
@@ -10,7 +10,7 @@ import os.path
 #from nltk import ngrams
 
 class survey:
-    """Class for handling intents surveys from google sheets"""
+    """Class for handling intents surveys from Smart Survey """
 
     def __init__(self):
         print('***** Instantiated survey class *****')
@@ -31,16 +31,9 @@ class survey:
             self.raw.columns = [i.replace("\xa0", " ") for i in self.raw.columns]
             self.raw.columns = self.raw.columns.str.strip()
             
-            # If raw csv from survey monkey: strip the second row of headers:
-            
-            self.raw = drop_sub(self.raw)
+            # Force UserID to be integer (to prevent the addition of decimal places)
 
-            # Strange behaviour leading to top 10 rows being filled with NaN.
-            # Drop these by dropping rows with now RespondentID
-
-            self.raw.dropna(subset=['RespondentID'],inplace=True)
-
-            self.raw['RespondentID'] = self.raw['RespondentID'].astype('int')
+            self.raw['UserID'] = self.raw['UserID'].astype('int')
             
         except FileNotFoundError:
             print('*** Target file ', x,' does not exist')
@@ -71,9 +64,19 @@ class survey:
         cols = list(self.raw_mapping.values())
         
         # Strip down only to the columns listed in raw.mapping - append code1 here
-        # as it should always now be present in the data.    
-        
+        # as it should always now be present in the data. Also include the
+        # comment_other columns.
+
         cols.extend(['code1'])
+        
+        self.data['comment_other_found_what'] = extract_other(self.data['cat_found_looking_for'])
+        self.data['comment_other_else_help'] = extract_other(self.data['cat_anywhere_else_help'])
+        
+        self.data['cat_found_looking_for'] = rewrite_other(self.data['cat_found_looking_for'])
+        self.data['cat_anywhere_else_help'] = rewrite_other(self.data['cat_anywhere_else_help'])  
+        # This column is no longer present (but will still feature 
+        # in the database.
+#self.data['comment_other_where_for_help'] = extract_others(self.data['cat_found_looking_for'])
 
         # Check here: if code1 is not in the raw data, i.e. we are predicting, not
         # training, then add the column to the dataframe.
@@ -348,21 +351,22 @@ class survey:
             print(repr(e))
 
     raw_mapping = {
-        'RespondentID':'respondent_ID',
-        'StartDate':'start_date',
-        'EndDate': 'end_date',
-        'Custom Data':'full_url',
-        'Are you using GOV.UK for professional or personal reasons?':'cat_work_or_personal',
-        'What kind of work do you do?':'comment_what_work',
-        'Describe why you came to GOV.UK today.<br /><span style="font-size: 10pt;">Please do not include personal or financial information, eg your National Insurance number or credit card details.</span>' : 'comment_why_you_came',
-        'Have you found what you were looking for?':'cat_found_looking_for',
-        'Overall, how did you feel about your visit to GOV.UK today?':'cat_satisfaction',
-        'Have you been anywhere else for help with this already?':'cat_anywhere_else_help',
-        'Where did you go for help?':'comment_where_for_help',
-        'If you wish to comment further, please do so here.<br><strong><span style="font-size: 10pt;">Please do not include personal or financial information, eg your National Insurance number or credit card details.</span></strong>':'comment_further_comments',
-        'Unnamed: 13':'comment_other_found_what',       
-        'Unnamed: 17':'comment_other_else_help',
-        'Unnamed: 15':'comment_other_where_for_help'
+        'UserID':'respondent_ID',
+        'Started':'start_date',
+        'Ended': 'end_date',
+        'Page Path':'full_url',
+        'Tracking Link':'tracking_link',
+        'Q1. Are you using GOV.UK for professional or personal reasons?':'cat_work_or_personal',
+        'Q2. What kind of work do you do?':'comment_what_work',
+        'Q3. Describe why you came to GOV.UK todayPlease do not include personal or financial information, eg your National Insurance number or credit card details.':'comment_why_you_came',
+        'Q4. Have you found what you were looking for?':'cat_found_looking_for',
+        'Q5.1.':'cat_satisfaction',
+       'Q6. Have you been anywhere else for help with this already?':'cat_anywhere_else_help',
+        'Q7. Where did you go for help?':'comment_where_for_help',
+        'Q8. If you wish to comment further, please do so here.Please do not include personal or financial information, eg your National Insurance number or credit card details.':'comment_further_comments',
+    'Unnamed: 13':'comment_other_found_what',
+    'Unnamed: 17':'comment_other_else_help',
+    'dummy':'comment_other_where_for_help'
     }
 
     categories = [
@@ -395,18 +399,13 @@ class survey:
 
     selection = ['respondent_ID', 'weekday', 'day', 'week', 'month', 'year', 'time_delta'] + categories + [(x + '_len') for x in comments] + [(x + '_nexcl') for x in comments] + [(x + '_capsratio') for x in comments]
 
-def drop_sub(x):
-    if x.iloc[0,].str.match('Open-Ended Response').sum():
-        x.drop(0, inplace=True)
-    return(x)
-
 def string_len(x):
     try:
 
         x = x.str.strip()
         x = x.str.lower()
 
-        x = x.replace(r'\,\s?\,?$|none\,', 'none', regex=True)
+        x = x.replace(r'\,\s?\,?$|none\,^\-$', 'none', regex=True)
         
         # Convert NaN to 'a'. Then when counted this will
         # be a 1. Whilst not 0, any entry with 1 is virtually
@@ -483,7 +482,7 @@ def clean_category(x):
         # May be needed if columns are integer
         x = x.apply(str)
         x = x.str.lower()
-        x = x.replace(r'null|\#Value\!', 'none', regex=True)
+        x = x.replace(r'null|\#Value\!|^-$', 'none', regex=True)
         x = x.fillna('none')
         x = pd.Series(x)
         x = x.astype('category')
@@ -670,3 +669,35 @@ def reg_match(r, x, i):
         found = x
     return(found)
 
+# Functions to remove other categories from categorical questions following
+# switch to smart survey
+
+def extract_other(x):
+    try:
+        
+        # Weirdness with some columns being filled with just a comma.
+        # Is this due to improper handling of the csv file somewhere?        
+        x = x.fillna('none')
+        x = x.replace(r'^Yes$|^No$|^Not sure / Not yet$', 'none', regex=True)
+
+    except Exception as e:
+        print('There was an error cleaning the', x ,'column.')
+        print('Original error message:')
+        print(repr(e))
+    return(x)
+
+
+def rewrite_other(x):
+    try:
+        
+        # Weirdness with some columns being filled with just a comma.
+        # Is this due to improper handling of the csv file somewhere?        
+        x = x.fillna('none')
+        x[~x.str.match('^Yes$|^No$|^Not sure / Not yet$', na=False)] = 'other'
+
+    except Exception as e:
+        print('There was an error cleaning the', x ,'column.')
+        print('Original error message:')
+        print(repr(e))
+    return(x)
+ 
