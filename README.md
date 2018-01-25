@@ -1,23 +1,23 @@
-[![Build Status](https://travis-ci.org/ukgovdatascience/classifyintents.svg?branch=master)](https://travis-ci.org/ukgovdatascience/classifyintents)
-[![codecov.io](http://codecov.io/github/ukgovdatascience/classifyintents/coverage.svg?branch=master)](http://codecov.io/github/ukgovdatascience/classifyintents?branch=master)
-[![GitHub tag](https://img.shields.io/github/tag/ukgovdatascience/classifyintents.svg)]()
+[![Build Status](https://travis-ci.org/alphagov/classifyintents.svg?branch=master)](https://travis-ci.org/alphagov/classifyintents)
+[![codecov.io](http://codecov.io/github/alphagov/classifyintents/coverage.svg?branch=master)](http://codecov.io/github/alphagov/classifyintents?branch=master)
+[![GitHub tag](https://img.shields.io/github/tag/alphagov/classifyintents.svg)]()
 
 # classifyintents
 
 This is a python module which prepares and cleans GOV.UK survey data, in preparation for classification using a machine learning algorithm.
-**Training of the algorithm and prediction on new data is handled in the [ukgovdatascience/classifyintentspipe](https://github.com/ukgovdatascience/classifyintentspipe) repo.**
+**Training of the algorithm and prediction on new data is handled in the [alphagov/classifyintentspipe](https://github.com/alphagov/classifyintentspipe) repo.**
 The module is built around the `classifyintents.survey` and associated methods.
 
 To install this module using pip:
 
 ```
-pip install git+git://github.com/ukgovdatascience/classifyintents.git
+pip install git+git://github.com/alphagov/classifyintents.git
 ```
 
 Alternatively, place the following line in your `requirements.txt` file:
 
 ```
-git+git://github.com/ukgovdatascience/classifyintents.git
+git+git://github.com/alphagov/classifyintents.git
 ```
 
 and run the command `pip install -r requirements.txt` as usual.
