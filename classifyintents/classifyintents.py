@@ -518,7 +518,7 @@ class survey:
         'Q2. What kind of work do you do?':'comment_what_work',
         'Q3. Describe why you came to GOV.UK todayPlease do not include personal or financial information, eg your National Insurance number or credit card details.':'comment_why_you_came',
         'Q4. Have you found what you were looking for?':'cat_found_looking_for',
-        'Q5.1.':'cat_satisfaction',
+        'Q5. Overall, how did you feel about your visit to GOV.UK today?':'cat_satisfaction',
         'Q6. Have you been anywhere else for help with this already?':'cat_anywhere_else_help',
         'Q7. Where did you go for help?':'comment_where_for_help',
         'Q8. If you wish to comment further, please do so here.Please do not include personal or financial information, eg your National Insurance number or credit card details.':'comment_further_comments',

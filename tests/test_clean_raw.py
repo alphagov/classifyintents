@@ -71,22 +71,14 @@ class TestCleanRaw:
 
     def test_target_is_not_null_after_clean_raw(self):
         
-        nt.assert_true(
-                sum(self.train.data.target.isnull()) != len(self.train.data.target)
-                )
+        assert sum(self.train.data.target.isnull()) != len(self.train.data.target)
     
-        nt.assert_true(
-                sum(self.pred.data.target.isnull()) != len(self.pred.data.target)
-                )
+        assert sum(self.pred.data.target.isnull()) != len(self.pred.data.target)
 
     # For training value counts should be...
 
     def test_target_value_counts_after_clean_raw_for_predicting(self):
 
-        nt.assert_true(
-                sum(self.train.data.target == 'ok') == 39
-                )
+        assert sum(self.train.data.target == 'ok') == 39
 
-        nt.assert_true(
-                sum(self.train.data.target == 'finding-general') == 29
-                )
+        assert sum(self.train.data.target == 'finding-general') == 29
