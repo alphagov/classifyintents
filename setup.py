@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='classifyintents',
-      version='0.6.1',
+      version='0.6.2',
       description='Data wrangling for classification of the GOV.UK intents survey',
       url='http://github.com/alphagov/classifyintents',
       author='Matthew Upson',
